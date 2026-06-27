@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 
 # ── パス設定 ──────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent.parent
-EVENTS_FILE = Path(__file__).parent / "events.json"
+EVENTS_FILE = Path(__file__).parent / "data" / "events.json"
 
 # ── アプリ初期化 ──────────────────────────────────────────
 app = FastAPI(

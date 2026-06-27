@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = "https://www.komoro-tour.jp"
 EVENT_LIST_URL = f"{BASE_URL}/blog/category/event/"
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent / "data"
 EVENTS_FILE = DATA_DIR / "events.json"
 
 # ──────────────────────────────────────────────────────────────
@@ -158,7 +158,7 @@ def fetch_article_detail(url: str) -> dict:
     """個別記事ページから詳細を取得"""
     try:
         resp = polite_get(url, timeout=10)
-        soup = BeautifulSoup(resp.text, "html.parser")
+        soup = BeautifulSoup(resp.text, "lxml")
 
         # 本文を取得（一般的なWordPressのクラス名に対応）
         body_el = (
@@ -179,7 +179,21 @@ def fetch_article_detail(url: str) -> dict:
 
 
 def fetch_event_list(url: str = EVENT_LIST_URL) -> list[dict]:
-    """イベント一覧ページから記事リストを取得"""
+    """
+    イベント一覧ページから記事リストを取得。
+
+    komoro-tour.jp の実際のHTML構造:
+      <article>
+        <a href="https://www.komoro-tour.jp/blog/id_XXXXX/">
+          <p class="date"><time datetime="2026-06-26">...</time></p>
+          <div class="inner">
+            <h1 class="tit">タイトル</h1>
+            <ul class="tags"><li>#タグ</li>...</ul>
+            <div class="body"><p>本文抜粋...</p></div>
+          </div>
+        </a>
+      </article>
+    """
     logger.info(f"取得中: {url}")
     try:
         resp = polite_get(url, timeout=15)
@@ -187,30 +201,23 @@ def fetch_event_list(url: str = EVENT_LIST_URL) -> list[dict]:
         logger.error(f"一覧ページ取得失敗: {e}")
         return []
 
-    soup = BeautifulSoup(resp.text, "lxml")
+    soup = BeautifulSoup(resp.text, "html.parser")
     events = []
 
-    # WordPressの記事カード（article タグ or .post クラス）
-    articles = soup.find_all("article") or soup.find_all(class_=re.compile(r"\bpost\b"))
-
-    for article in articles:
-        # タイトルとURL
-        title_el = article.find(["h1", "h2", "h3", "h4"])
-        link_el = title_el.find("a") if title_el else article.find("a")
-
-        if not title_el or not link_el:
+    for article in soup.find_all("article"):
+        # URL: article直下のaタグ
+        link_el = article.find("a", href=True)
+        if not link_el:
             continue
+        article_url = link_el["href"]
 
+        # タイトル: h1.tit
+        title_el = article.find("h1", class_="tit")
+        if not title_el:
+            continue
         title = title_el.get_text(strip=True)
-        article_url = link_el.get("href", "")
-        if article_url and not article_url.startswith("http"):
-            article_url = BASE_URL + article_url
 
-        # サムネイルテキストや記事抜粋から日付・場所を試みる
-        excerpt_el = article.find(class_=re.compile(r"excerpt|summary|description"))
-        excerpt = excerpt_el.get_text(" ", strip=True) if excerpt_el else ""
-
-        # 投稿日（meta または time タグ）
+        # 投稿日: time[datetime]
         time_el = article.find("time")
         post_date = None
         if time_el and time_el.get("datetime"):
@@ -219,16 +226,26 @@ def fetch_event_list(url: str = EVENT_LIST_URL) -> list[dict]:
             except Exception:
                 pass
 
+        # 本文抜粋: div.body p
+        body_el = article.find("div", class_="body")
+        excerpt = body_el.get_text(" ", strip=True) if body_el else ""
+
+        # タグ: ul.tags li
+        tags_el = article.find("ul", class_="tags")
+        tags = [li.get_text(strip=True).lstrip("#") for li in tags_el.find_all("li")] if tags_el else []
+
+        # イベント日付: タイトル・本文から抽出、なければ投稿日
         event_date = parse_date_from_text(title + " " + excerpt) or post_date
 
         event = {
             "title": title,
             "url": article_url,
             "date": event_date,
-            "time": parse_time_from_text(excerpt),
+            "time": parse_time_from_text(title + " " + excerpt),
             "location": parse_location_from_text(excerpt) if excerpt else "小諸市内",
             "description": excerpt[:200] if excerpt else None,
             "category": detect_category(title + " " + excerpt),
+            "tags": tags,
             "source": "こもろ観光局",
         }
         event["id"] = make_event_id(title, event_date or "")
@@ -237,7 +254,6 @@ def fetch_event_list(url: str = EVENT_LIST_URL) -> list[dict]:
 
     logger.info(f"合計 {len(events)} 件取得")
     return events
-
 
 def fetch_month_page(year: int, month: int) -> list[dict]:
     """月別アーカイブページから取得"""
