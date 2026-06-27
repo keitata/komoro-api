@@ -1,0 +1,41 @@
+name: 毎日イベント自動取得
+
+on:
+  schedule:
+    # 毎日深夜1時〜3時（JST）のどこかで起動 = UTC 16時〜18時
+    # ランダム性は sleep ステップで実現
+    - cron: '0 16 * * *'
+  workflow_dispatch:  # 手動実行ボタン
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ランダム待機（0〜90分）
+        run: |
+          SLEEP_SEC=$(( RANDOM % 5400 ))
+          echo "待機時間: ${SLEEP_SEC}秒 （約$(( SLEEP_SEC / 60 ))分）"
+          sleep $SLEEP_SEC
+
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 依存パッケージインストール
+        run: pip install requests beautifulsoup4 python-dateutil
+
+      - name: スクレイピング実行
+        run: python scraper.py
+
+      - name: events.json に変更があればコミット＆プッシュ
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/events.json
+          git diff --cached --quiet || git commit -m "chore: update events $(date +'%Y-%m-%d')"
+          git push
