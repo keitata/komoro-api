@@ -2,20 +2,22 @@ name: 毎日イベント自動取得
 
 on:
   schedule:
-    # 毎日深夜1時〜3時（JST）のどこかで起動 = UTC 16時〜18時
-    # ランダム性は sleep ステップで実現
     - cron: '0 16 * * *'
-  workflow_dispatch:  # 手動実行ボタン
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ランダム待機（0〜90分）
+      - name: ランダム待機（自動実行時のみ）
+        if: github.event_name == 'schedule'
         run: |
           SLEEP_SEC=$(( RANDOM % 5400 ))
-          echo "待機時間: ${SLEEP_SEC}秒 （約$(( SLEEP_SEC / 60 ))分）"
+          echo "待機時間: ${SLEEP_SEC}秒"
           sleep $SLEEP_SEC
 
       - name: リポジトリをチェックアウト
