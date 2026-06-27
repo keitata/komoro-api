@@ -86,16 +86,57 @@ def filter_upcoming(events: list[dict], days: int = 7) -> list[dict]:
 
 @app.get("/", tags=["root"])
 def root():
+    store = load_events()
     return {
-        "message": "小諸市イベント統合API（非公式）",
-        "endpoints": {
-            "全イベント": "/api/events",
-            "月指定": "/api/events?month=2026-07",
-            "直近7日": "/api/events/upcoming",
-            "個別詳細": "/api/events/{event_id}",
-            "Swagger UI": "/docs",
+        "name": "小諸市イベント統合API",
+        "version": "0.1.0",
+        "status": "非公式API・読み取り専用・認証不要・CORS開放",
+        "description": "こもろ観光局（https://www.komoro-tour.jp）の公開イベント情報を集約した非公式APIです。",
+        "base_url": "https://komoro-api.vercel.app",
+        "endpoints": [
+            {
+                "method": "GET",
+                "path": "/api/events",
+                "description": "イベント一覧取得",
+                "params": "month=2026-07 / category=祭り / limit=50 / offset=0",
+                "example": "https://komoro-api.vercel.app/api/events?month=2026-07",
+            },
+            {
+                "method": "GET",
+                "path": "/api/events/upcoming",
+                "description": "直近N日以内のイベント（デフォルト7日）",
+                "params": "days=7",
+                "example": "https://komoro-api.vercel.app/api/events/upcoming?days=14",
+            },
+            {
+                "method": "GET",
+                "path": "/api/events/{event_id}",
+                "description": "個別イベント詳細",
+                "example": "https://komoro-api.vercel.app/api/events/event-20260711-a1b2c3",
+            },
+            {
+                "method": "GET",
+                "path": "/api/categories",
+                "description": "カテゴリ一覧と件数",
+                "example": "https://komoro-api.vercel.app/api/categories",
+            },
+        ],
+        "quick_start": 'curl "https://komoro-api.vercel.app/api/events?month=2026-07"',
+        "docs": {
+            "swagger_ui": "https://komoro-api.vercel.app/docs",
+            "openapi_json": "https://komoro-api.vercel.app/openapi.json",
         },
-        "disclaimer": DISCLAIMER,
+        "data": {
+            "source": "こもろ観光局 https://www.komoro-tour.jp",
+            "events_count": store.get("total", len(store.get("events", []))),
+            "last_updated": store.get("updated_at"),
+            "update_frequency": "毎日自動更新",
+        },
+        "terms": {
+            "usage": "非商用・個人利用推奨",
+            "rate_limit": "大量アクセス禁止（1秒以上のインターバルを推奨）",
+            "disclaimer": DISCLAIMER,
+        },
     }
 
 
