@@ -1,0 +1,40 @@
+{
+    "events": [
+      {
+        "id": "event-20260711-a1b2c3",
+        "title": "第54回 こもろ市民まつり「みこし」",
+        "date": "2026-07-11",
+        "time": "13:15～20:50",
+        "location": "小諸市内（大手門公園など）",
+        "description": "子どもみこしや各町会のみこしが小諸市内を練り歩く、夏の一大イベントです。",
+        "category": "祭り",
+        "url": "https://www.komoro-tour.jp/blog/category/event/",
+        "source": "こもろ観光局"
+      },
+      {
+        "id": "event-20260718-d4e5f6",
+        "title": "小諸城址 懐古園 夏まつり",
+        "date": "2026-07-18",
+        "time": "10:00～16:00",
+        "location": "懐古園（小諸城址）",
+        "description": "国の史跡・小諸城址懐古園で開催される夏のお祭り。各種屋台や伝統芸能の披露があります。",
+        "category": "祭り",
+        "url": "https://www.komoro-tour.jp/blog/category/event/",
+        "source": "こもろ観光局"
+      },
+      {
+        "id": "event-20260801-g7h8i9",
+        "title": "小諸高原野外コンサート2026",
+        "date": "2026-08-01",
+        "time": "18:00～20:30",
+        "location": "小諸高原美術館 野外ステージ",
+        "description": "高原の夕暮れの中、地元アーティストによる野外コンサートを開催します。",
+        "category": "コンサート",
+        "url": "https://www.komoro-tour.jp/blog/category/event/",
+        "source": "こもろ観光局"
+      }
+    ],
+    "updated_at": "2026-06-27T10:00:00Z",
+    "total": 3,
+    "disclaimer": "非公式APIです。最新情報は公式サイト（https://www.komoro-tour.jp）で確認してください。"
+  }
