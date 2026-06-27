@@ -271,8 +271,16 @@ def save_events(events: list[dict]) -> None:
             data = json.load(f)
             existing = {e["id"]: e for e in data.get("events", [])}
 
+    added = 0
     for event in events:
-        existing[event["id"]] = event
+        if event["id"] not in existing:
+            existing[event["id"]] = event
+            added += 1
+            logger.info(f"  新規追加: {event['title']}")
+
+    if added == 0:
+        logger.info("新規イベントなし・更新スキップ")
+        return
 
     # 日付順にソート（日付なしは末尾）
     sorted_events = sorted(
