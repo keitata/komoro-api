@@ -347,7 +347,7 @@ def run_scrape(fetch_detail: bool = False) -> None:
     from .scraper_slow_style import fetch_slow_style_events
 
     logger.info("軽井沢ナビ（Slow-Style）からイベントを取得中...")
-    slow_style_events = fetch_slow_style_events()
+    slow_style_events = fetch_slow_style_events(fetch_detail=fetch_detail)
     events.extend(slow_style_events)
 
     save_events(events)

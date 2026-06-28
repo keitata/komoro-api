@@ -20,10 +20,10 @@ BASE_DIR   = Path(__file__).parent.parent
 EVENTS_FILE = Path(__file__).parent / "data" / "events.json"
 DATA_DIR    = Path(__file__).parent / "data"
 
-SPOTS_FILE       = DATA_DIR / "spots_test.json"
-RESTAURANTS_FILE = DATA_DIR / "restaurants_test.json"
-GARBAGE_FILE     = DATA_DIR / "garbage_test.json"
-CHILDCARE_FILE   = DATA_DIR / "childcare_test.json"
+# SPOTS_FILE       = DATA_DIR / "spots_test.json"
+# RESTAURANTS_FILE = DATA_DIR / "restaurants_test.json"
+# GARBAGE_FILE     = DATA_DIR / "garbage_test.json"
+# CHILDCARE_FILE   = DATA_DIR / "childcare_test.json"
 
 # ── 定数 ─────────────────────────────────────────────────
 DISCLAIMER = "非公式APIです。最新情報は公式サイト（https://www.komoro-tour.jp）で確認してください。"
@@ -53,7 +53,7 @@ app.add_middleware(
 
 def load_json(path: Path) -> dict:
     """JSON ファイルを読み込む。存在しなければ空 dict。
-    呼び出し: load_events、GET /api/spots 等（各種静的データ読み込み）"""
+    呼び出し: load_events 等"""
     if not path.exists():
         return {}
     with open(path, "r", encoding="utf-8") as f:
@@ -89,7 +89,7 @@ def filter_upcoming(events: list[dict], days: int = 7) -> list[dict]:
     limit = today + timedelta(days=days)
     result = []
     for e in events:
-        if not is_listable_event(e, today):
+        if not is_listable_event(e):
             continue
         d_str = e.get("date")
         if not d_str:
@@ -197,8 +197,6 @@ def root():
       <code>curl "https://komoro-api.vercel.app/api/events?month=2026-07"</code>
       <div class="quickstart-label" style="margin-top:12px;"># 直近7日のイベントを取得</div>
       <code>curl "https://komoro-api.vercel.app/api/events/upcoming"</code>
-      <div class="quickstart-label" style="margin-top:12px;"># 観光スポット一覧</div>
-      <code>curl "https://komoro-api.vercel.app/api/spots"</code>
     </div>
 
     <div class="section-title">エンドポイント</div>
@@ -211,6 +209,7 @@ def root():
       <div class="endpoint"><span class="method">GET</span><a class="path" href="/api/categories">/api/categories</a><span class="desc">カテゴリ一覧と件数</span></div>
     </div>
 
+    <!-- 一時無効: spots / restaurants / garbage / childcare
     <div class="endpoint-group">
       <div class="group-label">spots — 観光スポット</div>
       <div class="endpoint"><span class="method">GET</span><a class="path" href="/api/spots">/api/spots</a><span class="desc">観光スポット一覧（懐古園・動物園・温泉など）</span></div>
@@ -230,6 +229,7 @@ def root():
       <div class="group-label">childcare — 子育て施設</div>
       <div class="endpoint"><span class="method">GET</span><a class="path" href="/api/childcare">/api/childcare</a><span class="desc">保育園・児童館・遊び場・子育て支援センター</span></div>
     </div>
+    -->
 
     <div class="endpoint-group">
       <div class="group-label">meta</div>
@@ -318,66 +318,66 @@ def get_categories():
     )
 
 
-# ── 観光スポット ──────────────────────────────────────────
-
-@app.get("/api/spots", tags=["spots"])
-def get_spots(
-    category: Optional[str] = Query(None, description="カテゴリ（例: 温泉）"),
-):
-    """観光スポット一覧（spots_test.json）。
-    呼び出し: GET /api/spots"""
-    store = load_json(SPOTS_FILE)
-    spots = store.get("spots", [])
-    if category:
-        spots = [s for s in spots if s.get("category") == category]
-    return success_response({"spots": spots, "total": len(spots)}, updated_at=store.get("updated_at"))
-
-
-# ── 飲食店 ────────────────────────────────────────────────
-
-@app.get("/api/restaurants", tags=["restaurants"])
-def get_restaurants(
-    category: Optional[str] = Query(None, description="カテゴリ（例: そば）"),
-):
-    """飲食店一覧（restaurants_test.json）。
-    呼び出し: GET /api/restaurants"""
-    store = load_json(RESTAURANTS_FILE)
-    restaurants = store.get("restaurants", [])
-    if category:
-        restaurants = [r for r in restaurants if r.get("category") == category]
-    return success_response({"restaurants": restaurants, "total": len(restaurants)}, updated_at=store.get("updated_at"))
-
-
-# ── ゴミ収集日 ────────────────────────────────────────────
-
-@app.get("/api/garbage", tags=["garbage"])
-def get_garbage(
-    area: Optional[str] = Query(None, description="地区名（例: 大手地区）"),
-):
-    """ゴミ収集日（garbage_test.json）。area 未指定なら全地区。
-    呼び出し: GET /api/garbage"""
-    store = load_json(GARBAGE_FILE)
-    areas = store.get("areas", [])
-    if area:
-        areas = [a for a in areas if a.get("area_name") == area]
-        if not areas:
-            raise HTTPException(status_code=404, detail=f"地区が見つかりません: {area}")
-    return success_response({"areas": areas, "total": len(areas)}, updated_at=store.get("updated_at"))
-
-
-# ── 子育て施設 ────────────────────────────────────────────
-
-@app.get("/api/childcare", tags=["childcare"])
-def get_childcare(
-    category: Optional[str] = Query(None, description="カテゴリ（例: 保育園）"),
-):
-    """子育て施設一覧（childcare_test.json）。
-    呼び出し: GET /api/childcare"""
-    store = load_json(CHILDCARE_FILE)
-    facilities = store.get("facilities", [])
-    if category:
-        facilities = [f for f in facilities if f.get("category") == category]
-    return success_response({"facilities": facilities, "total": len(facilities)}, updated_at=store.get("updated_at"))
+# ── 観光スポット（一時無効） ──────────────────────────────
+#
+# @app.get("/api/spots", tags=["spots"])
+# def get_spots(
+#     category: Optional[str] = Query(None, description="カテゴリ（例: 温泉）"),
+# ):
+#     """観光スポット一覧（spots_test.json）。
+#     呼び出し: GET /api/spots"""
+#     store = load_json(SPOTS_FILE)
+#     spots = store.get("spots", [])
+#     if category:
+#         spots = [s for s in spots if s.get("category") == category]
+#     return success_response({"spots": spots, "total": len(spots)}, updated_at=store.get("updated_at"))
+#
+#
+# ── 飲食店（一時無効） ────────────────────────────────────
+#
+# @app.get("/api/restaurants", tags=["restaurants"])
+# def get_restaurants(
+#     category: Optional[str] = Query(None, description="カテゴリ（例: そば）"),
+# ):
+#     """飲食店一覧（restaurants_test.json）。
+#     呼び出し: GET /api/restaurants"""
+#     store = load_json(RESTAURANTS_FILE)
+#     restaurants = store.get("restaurants", [])
+#     if category:
+#         restaurants = [r for r in restaurants if r.get("category") == category]
+#     return success_response({"restaurants": restaurants, "total": len(restaurants)}, updated_at=store.get("updated_at"))
+#
+#
+# ── ゴミ収集日（一時無効） ────────────────────────────────
+#
+# @app.get("/api/garbage", tags=["garbage"])
+# def get_garbage(
+#     area: Optional[str] = Query(None, description="地区名（例: 大手地区）"),
+# ):
+#     """ゴミ収集日（garbage_test.json）。area 未指定なら全地区。
+#     呼び出し: GET /api/garbage"""
+#     store = load_json(GARBAGE_FILE)
+#     areas = store.get("areas", [])
+#     if area:
+#         areas = [a for a in areas if a.get("area_name") == area]
+#         if not areas:
+#             raise HTTPException(status_code=404, detail=f"地区が見つかりません: {area}")
+#     return success_response({"areas": areas, "total": len(areas)}, updated_at=store.get("updated_at"))
+#
+#
+# ── 子育て施設（一時無効） ────────────────────────────────
+#
+# @app.get("/api/childcare", tags=["childcare"])
+# def get_childcare(
+#     category: Optional[str] = Query(None, description="カテゴリ（例: 保育園）"),
+# ):
+#     """子育て施設一覧（childcare_test.json）。
+#     呼び出し: GET /api/childcare"""
+#     store = load_json(CHILDCARE_FILE)
+#     facilities = store.get("facilities", [])
+#     if category:
+#         facilities = [f for f in facilities if f.get("category") == category]
+#     return success_response({"facilities": facilities, "total": len(facilities)}, updated_at=store.get("updated_at"))
 
 
 # ── メタ ──────────────────────────────────────────────────

@@ -126,7 +126,7 @@ def _extract_event_urls(soup: BeautifulSoup) -> list[dict]:
     return items
 
 
-def fetch_list_pages(max_pages: int = 10) -> list[dict]:
+def fetch_list_pages(max_pages: int = 20) -> list[dict]:
     """全体一覧をページ送りで取得"""
     summaries: dict[str, dict] = {}
 
@@ -269,12 +269,20 @@ def _summary_to_event(summary: dict) -> dict:
     return event
 
 
-def fetch_slow_style_events() -> list[dict]:
-    """Slow-Style のイベントをすべて取得"""
+def fetch_slow_style_events(fetch_detail: bool = False) -> list[dict]:
+    """Slow-Style のイベントをすべて取得。
+
+    fetch_detail=False（既定）: 一覧ページのみ（全エリア・高速）。
+    fetch_detail=True: 各詳細ページも取得（座標など。時間がかかる）。
+    """
     summaries = fetch_list_pages()
     events: list[dict] = []
     for summary in summaries:
-        event = fetch_event_detail(summary)
+        if fetch_detail:
+            event = fetch_event_detail(summary)
+        else:
+            event = _summary_to_event(summary)
         events.append(event)
-        logger.info(f"  [Slow-Style] {event['title']}")
+        area = event.get("area") or "?"
+        logger.info(f"  [Slow-Style/{area}] {event['title']}")
     return events
