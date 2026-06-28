@@ -1,7 +1,7 @@
 """
 イベントスクレイパー
 - こもろ観光局: https://www.komoro-tour.jp/blog/category/event/
-- 軽井沢ナビ:   https://www.slow-style.com/event/ （小諸エリア）
+- 軽井沢ナビ:   https://www.slow-style.com/event/ （全エリア）
 """
 
 import re
@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 from dateutil import parser as dateparser
 
 from geocode import enrich_event
-from events_util import filter_active_events, is_active_event
+from events_util import filter_active_events, filter_listable_events, is_active_event, is_listable_event
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -280,7 +280,7 @@ def save_events(events: list[dict]) -> None:
     updated = 0
     for event in events:
         enriched = enrich_event(event)
-        if not is_active_event(enriched):
+        if not is_listable_event(enriched):
             continue
         eid = enriched["id"]
         if eid not in existing:
@@ -304,7 +304,9 @@ def save_events(events: list[dict]) -> None:
 
     before_count = len(existing)
     sorted_events = sorted(
-        filter_active_events(list(existing.values())),
+        filter_listable_events(
+            filter_active_events(list(existing.values()))
+        ),
         key=lambda e: e.get("date") or "9999-99-99",
     )
     removed = before_count - len(sorted_events)
@@ -344,7 +346,7 @@ def run_scrape(fetch_detail: bool = False) -> None:
 
     from .scraper_slow_style import fetch_slow_style_events
 
-    logger.info("軽井沢ナビ（Slow-Style）から小諸イベントを取得中...")
+    logger.info("軽井沢ナビ（Slow-Style）からイベントを取得中...")
     slow_style_events = fetch_slow_style_events()
     events.extend(slow_style_events)
 

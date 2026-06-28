@@ -1,6 +1,6 @@
 """
 軽井沢ナビ（Slow-Style.com）イベントスクレイパー
-対象: https://www.slow-style.com/event/ （小諸エリアのみ）
+対象: https://www.slow-style.com/event/ （全エリア）
 """
 
 from __future__ import annotations
@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = "https://www.slow-style.com"
 EVENT_LIST_URL = f"{BASE_URL}/event/"
-KOMORO_AREA_URL = f"{BASE_URL}/event/area/komoro/"
 
 SLOW_STYLE_CATEGORY_MAP = {
     "お祭り": "祭り",
@@ -57,7 +56,6 @@ def parse_list_date(text: str) -> tuple[Optional[str], Optional[str]]:
     if not text:
         return None, None
 
-    # 2026.06.26(金)～06.28(日)
     m = re.search(
         r"(\d{4})\.(\d{1,2})\.(\d{1,2}).*?[～~]\s*(\d{1,2})\.(\d{1,2})",
         text,
@@ -68,7 +66,6 @@ def parse_list_date(text: str) -> tuple[Optional[str], Optional[str]]:
         end = f"{y}-{int(emo):02d}-{int(ed):02d}"
         return start, end
 
-    # 2026.06.28(日)
     m = re.search(r"(\d{4})\.(\d{1,2})\.(\d{1,2})", text)
     if m:
         y, mo, d = m.groups()
@@ -78,16 +75,21 @@ def parse_list_date(text: str) -> tuple[Optional[str], Optional[str]]:
     return None, None
 
 
+def _fallback_location(summary: dict) -> str:
+    area = (summary.get("area") or "").strip()
+    return area if area else ""
+
+
 def _extract_event_urls(soup: BeautifulSoup) -> list[dict]:
-    """一覧 HTML から小諸エリアのイベント概要を抽出"""
+    """一覧 HTML からイベント概要を抽出"""
     items: list[dict] = []
     seen: set[str] = set()
 
-    for li in soup.select("li.event-info__normal-item, li.event-info__recommend-item"):
+    for li in soup.select(
+        "li.event-info__normal-item, li.event-info__recommend-item",
+    ):
         area_el = li.select_one(".event-area__label")
         area = area_el.get_text(strip=True) if area_el else ""
-        if area != "小諸":
-            continue
 
         link_el = li.select_one("a[href*='/event/']")
         if not link_el:
@@ -118,41 +120,34 @@ def _extract_event_urls(soup: BeautifulSoup) -> list[dict]:
             "end_date": end,
             "category_raw": category_raw,
             "excerpt": excerpt[:200] if excerpt else None,
+            "area": area,
         })
 
     return items
 
 
-def fetch_komoro_list_pages() -> list[dict]:
-    """小諸エリア一覧 + 全体一覧（小諸フィルタ）をページ送りで取得"""
+def fetch_list_pages(max_pages: int = 10) -> list[dict]:
+    """全体一覧をページ送りで取得"""
     summaries: dict[str, dict] = {}
-    list_urls = [KOMORO_AREA_URL]
 
-    # 全体一覧も走査（小諸以外エリア混在のため _extract でフィルタ）
-    for page in range(1, 6):
+    for page in range(1, max_pages + 1):
         suffix = f"?page={page}" if page > 1 else ""
-        list_urls.append(f"{EVENT_LIST_URL}{suffix}")
-
-    for url in list_urls:
+        url = f"{EVENT_LIST_URL}{suffix}"
         logger.info(f"[Slow-Style] 一覧取得: {url}")
         try:
             resp = polite_get(url, timeout=20)
         except Exception as e:
             logger.warning(f"一覧取得失敗 {url}: {e}")
-            continue
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-        for item in _extract_event_urls(soup):
-            summaries[item["path"]] = item
-
-        # 小諸エリア URL は1ページのみ想定
-        if url.startswith(KOMORO_AREA_URL.rstrip("/")):
-            continue
-        # 全体一覧: 小諸が0件なら以降ページ不要
-        if not soup.select("li.event-info__normal-item"):
             break
 
-    logger.info(f"[Slow-Style] 小諸イベント {len(summaries)} 件検出")
+        soup = BeautifulSoup(resp.text, "html.parser")
+        page_items = _extract_event_urls(soup)
+        if not page_items:
+            break
+        for item in page_items:
+            summaries[item["path"]] = item
+
+    logger.info(f"[Slow-Style] イベント {len(summaries)} 件検出")
     return list(summaries.values())
 
 
@@ -175,7 +170,7 @@ def _parse_json_ld_event(soup: BeautifulSoup) -> Optional[dict]:
 
 def _location_from_json_ld(loc: dict) -> str:
     if not loc:
-        return "小諸市内"
+        return ""
     name = (loc.get("name") or "").strip()
     addr = loc.get("address") or {}
     parts = [
@@ -183,8 +178,7 @@ def _location_from_json_ld(loc: dict) -> str:
         addr.get("streetAddress", ""),
         addr.get("addressLocality", ""),
     ]
-    text = " ".join(p for p in parts if p).strip()
-    return text or "小諸市内"
+    return " ".join(p for p in parts if p).strip()
 
 
 def fetch_event_detail(summary: dict) -> dict:
@@ -203,7 +197,7 @@ def fetch_event_detail(summary: dict) -> dict:
     event_date = summary.get("date")
     end_date = summary.get("end_date")
     description = summary.get("excerpt")
-    location = "小諸市内"
+    location = _fallback_location(summary)
     lat = lng = None
     detail_url = url
 
@@ -211,10 +205,12 @@ def fetch_event_detail(summary: dict) -> dict:
         title = ld.get("name") or title
         event_date = ld.get("startDate") or event_date
         end_date = ld.get("endDate") or end_date
-        description = (ld.get("description") or description or "")[:200] or None
+        description = (
+            (ld.get("description") or description or "")[:200] or None
+        )
         detail_url = ld.get("url") or url
         loc = ld.get("location") or {}
-        location = _location_from_json_ld(loc)
+        location = _location_from_json_ld(loc) or location
         geo = loc.get("geo") or {}
         try:
             if geo.get("latitude") is not None:
@@ -225,6 +221,7 @@ def fetch_event_detail(summary: dict) -> dict:
             lat = lng = None
 
     category_raw = summary.get("category_raw", "")
+    area = summary.get("area") or ""
     event = {
         "id": make_slow_style_id(summary["path"]),
         "title": title,
@@ -238,6 +235,8 @@ def fetch_event_detail(summary: dict) -> dict:
         "tags": [category_raw] if category_raw else [],
         "source": "軽井沢ナビ",
     }
+    if area:
+        event["area"] = area
     if lat is not None and lng is not None:
         event["lat"] = lat
         event["lng"] = lng
@@ -251,24 +250,28 @@ def _summary_to_event(summary: dict) -> dict:
     category_raw = summary.get("category_raw", "")
     title = summary.get("title", "")
     description = summary.get("excerpt")
-    return {
+    area = summary.get("area") or ""
+    event = {
         "id": make_slow_style_id(summary["path"]),
         "title": title,
         "url": summary["url"],
         "date": summary.get("date"),
         "end_date": summary.get("end_date"),
         "time": None,
-        "location": "小諸市内",
+        "location": _fallback_location(summary),
         "description": description,
         "category": map_category(category_raw, title, description or ""),
         "tags": [category_raw] if category_raw else [],
         "source": "軽井沢ナビ",
     }
+    if area:
+        event["area"] = area
+    return event
 
 
 def fetch_slow_style_events() -> list[dict]:
-    """小諸市の Slow-Style イベントをすべて取得"""
-    summaries = fetch_komoro_list_pages()
+    """Slow-Style のイベントをすべて取得"""
+    summaries = fetch_list_pages()
     events: list[dict] = []
     for summary in summaries:
         event = fetch_event_detail(summary)

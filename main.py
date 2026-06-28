@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from geocode import enrich_event  # 呼び出し: イベント系 GET の返却直前（lat/lng 付与）
-from events_util import filter_active_events, is_active_event
+from events_util import filter_listable_events, is_listable_event
 
 # ── パス設定 ──────────────────────────────────────────────
 BASE_DIR   = Path(__file__).parent.parent
@@ -60,13 +60,12 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 def load_events() -> dict:
-    """data/events.json（スクレイパーが更新）を読み込む。終了済みは除外。
-    呼び出し: イベント系 API・GET /・GET /api/health"""
+    """data/events.json を読み込む。終了済み・古い長期開催は除外。"""
     data = load_json(EVENTS_FILE)
     if not data:
         return {"events": [], "updated_at": None, "total": 0}
-    active = filter_active_events(data.get("events", []))
-    return {**data, "events": active, "total": len(active)}
+    listed = filter_listable_events(data.get("events", []))
+    return {**data, "events": listed, "total": len(listed)}
 
 def success_response(data: dict, updated_at: Optional[str] = None) -> dict:
     """API レスポンスの共通ラッパー（success / data / disclaimer）。
@@ -90,7 +89,7 @@ def filter_upcoming(events: list[dict], days: int = 7) -> list[dict]:
     limit = today + timedelta(days=days)
     result = []
     for e in events:
-        if not is_active_event(e, today):
+        if not is_listable_event(e, today):
             continue
         d_str = e.get("date")
         if not d_str:
@@ -299,7 +298,7 @@ def get_event_detail(event_id: str):
     # 終了済みまたは存在しない
     raw = load_json(EVENTS_FILE)
     for event in raw.get("events", []):
-        if event.get("id") == event_id and not is_active_event(event):
+        if event.get("id") == event_id and not is_listable_event(event):
             raise HTTPException(status_code=404, detail=f"イベントは終了しました: {event_id}")
     raise HTTPException(status_code=404, detail=f"イベントが見つかりません: {event_id}")
 

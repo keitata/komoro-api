@@ -1,30 +1,64 @@
-"""イベントの日付判定（終了済み除外）"""
+"""イベントの日付判定（API 返却・保存用）"""
 
 from __future__ import annotations
 
 from datetime import date
 from typing import Optional
 
+# 開始からこの日数を超えて仍在開中のイベントは一覧から除外（長期展示など）
+MAX_ONGOING_DAYS = 30
 
-def event_end_date(event: dict) -> Optional[date]:
-    """終了日を返す。end_date がなければ date（単日）を使う。"""
-    raw = event.get("end_date") or event.get("date")
-    if not raw:
+
+def _parse_date(value: str | None) -> Optional[date]:
+    if not value:
         return None
     try:
-        return date.fromisoformat(str(raw)[:10])
+        return date.fromisoformat(str(value)[:10])
     except ValueError:
         return None
 
 
+def event_start_date(event: dict) -> Optional[date]:
+    return _parse_date(event.get("date"))
+
+
+def event_end_date(event: dict) -> Optional[date]:
+    return _parse_date(event.get("end_date") or event.get("date"))
+
+
 def is_active_event(event: dict, today: Optional[date] = None) -> bool:
-    """今日以降まだ終わっていないイベントか（終了日 >= 今日）"""
+    """終了日が今日以降（まだ終わっていない）"""
+    today = today or date.today()
     end = event_end_date(event)
     if end is None:
         return False
-    return end >= (today or date.today())
+    return end >= today
 
 
-def filter_active_events(events: list[dict], today: Optional[date] = None) -> list[dict]:
-    """終了済み・日付不明を除いたリストを返す"""
+def is_listable_event(event: dict, today: Optional[date] = None) -> bool:
+    """API 一覧に載せるイベントか（未終了・古い長期開催を除外）"""
+    today = today or date.today()
+    if not is_active_event(event, today):
+        return False
+
+    start = event_start_date(event)
+    if start is None:
+        return False
+
+    if start >= today:
+        return True
+
+    days_since_start = (today - start).days
+    return days_since_start <= MAX_ONGOING_DAYS
+
+
+def filter_listable_events(
+    events: list[dict], today: Optional[date] = None,
+) -> list[dict]:
+    return [e for e in events if is_listable_event(e, today)]
+
+
+def filter_active_events(
+    events: list[dict], today: Optional[date] = None,
+) -> list[dict]:
     return [e for e in events if is_active_event(e, today)]
