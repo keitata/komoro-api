@@ -1,6 +1,166 @@
 {
   "events": [
     {
+      "id": "ss-3808",
+      "title": "生誕140周年 藤田嗣治展 -Foujita: The 140th Anniversary Exhibition-",
+      "url": "https://www.slow-style.com/event/3808/",
+      "date": "2026-01-09",
+      "end_date": "2026-07-05",
+      "time": null,
+      "location": "旧軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "旧軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3865",
+      "title": "【甲冑着付け体験】小諸城で戦国武将気分！",
+      "url": "https://www.slow-style.com/event/3865/",
+      "date": "2026-03-01",
+      "end_date": "2026-10-31",
+      "time": null,
+      "location": "小諸",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "小諸",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3851",
+      "title": "ドイツのいろいろ人形",
+      "url": "https://www.slow-style.com/event/3851/",
+      "date": "2026-03-14",
+      "end_date": "2026-10-05",
+      "time": null,
+      "location": "旧軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "旧軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3877",
+      "title": "【堀辰雄文学記念館】春期企画展「『堀辰雄詩集』と人々」",
+      "url": "https://www.slow-style.com/event/3877/",
+      "date": "2026-03-19",
+      "end_date": "2026-07-07",
+      "time": null,
+      "location": "旧軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "旧軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3914",
+      "title": "こやまけいぞうのどうぶつ画",
+      "url": "https://www.slow-style.com/event/3914/",
+      "date": "2026-04-11",
+      "end_date": "2026-10-11",
+      "time": null,
+      "location": "小諸",
+      "description": null,
+      "category": "その他",
+      "tags": [
+        "ペット"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "小諸",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3928",
+      "title": "2026 Morning Outdoor Yoga",
+      "url": "https://www.slow-style.com/event/3928/",
+      "date": "2026-04-26",
+      "end_date": "2026-10-04",
+      "time": null,
+      "location": "軽井沢",
+      "description": null,
+      "category": "スポーツ",
+      "tags": [
+        "スポーツ"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3970",
+      "title": "「アサマスタークロスウォーク2026」参加者募集!【申込7/12まで】",
+      "url": "https://www.slow-style.com/event/3970/",
+      "date": "2026-05-01",
+      "end_date": "2026-07-12",
+      "time": null,
+      "location": "小諸",
+      "description": null,
+      "category": "スポーツ",
+      "tags": [
+        "スポーツ"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "小諸",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3954",
+      "title": "プレミアムBBQ講座",
+      "url": "https://www.slow-style.com/event/3954/",
+      "date": "2026-05-05",
+      "end_date": "2026-10-31",
+      "time": null,
+      "location": "新軽井沢・南軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "新軽井沢・南軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
       "id": "ss-3978",
       "title": "【さくまんが舎】武論尊　史村翔・池上遼一ミニ展",
       "url": "https://www.slow-style.com/event/3978/",
@@ -75,106 +235,6 @@
       ],
       "source": "軽井沢ナビ",
       "area": "佐久平・岩村田",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3999",
-      "title": "酢久商店　初夏の山吹まつり",
-      "url": "https://www.slow-style.com/event/3999/",
-      "date": "2026-06-26",
-      "end_date": "2026-06-28",
-      "time": null,
-      "location": "小諸",
-      "description": null,
-      "category": "文化",
-      "tags": [
-        "お店の催し"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "小諸",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-4001",
-      "title": "Raduno 155 Cuore Sportivo a KOMORO",
-      "url": "https://www.slow-style.com/event/4001/",
-      "date": "2026-06-28",
-      "end_date": null,
-      "time": null,
-      "location": "小諸市大手門公園（まちタネ広場、ひだまり広場） 小諸",
-      "description": "小諸にAlfa Romeo 155が集結普段なかなか見ることのできない名車を間近で楽しめる一日です。Alfa Romeo 155は、1992年から1997年に製造されたモデル。当時のツーリングカー選手権でも活躍した、今なお多くのファンに愛される希少なデザインの名車です。江戸時代の城下町の雰囲気が残る小諸市大手門公園を舞台に、赤く美しいAlfa Romeo 155が並ぶ景色は、車好きにはもちろん、写",
-      "category": "祭り",
-      "tags": [
-        "お祭り"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "小諸",
-      "lat": 36.3287042,
-      "lng": 138.4208696,
-      "location_label": "小諸市大手門公園（まちタネ広場、ひだまり広場） 小諸",
-      "geocode_confidence": "source"
-    },
-    {
-      "id": "ss-4002",
-      "title": "初夏の小諸まちなかマルシェ",
-      "url": "https://www.slow-style.com/event/4002/",
-      "date": "2026-06-28",
-      "end_date": null,
-      "time": null,
-      "location": "小諸市市民交流センター（市立小諸図書館2階） 相生町３丁目３−３ こもろプラザ 小諸市",
-      "description": "初夏の小諸まちなかマルシェ開催！    出店は54ブース！  お弁当などの美味しいものや、素敵なハンドメイド品、ワークショップ、ボディケア、占いまで幅広くそろっており、親子でのおでかけにもぴったりです！  １回500円以上のお買い物、ワークショップ参加でスタンプシール１枚を進呈。違うお店のシールを３枚集めると、抽選会に参加できます。会場内で使える500円の商品券もしくは、出展者さん提供のプレゼント",
-      "category": "祭り",
-      "tags": [
-        "お祭り"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "小諸",
-      "lat": 36.32712023618389,
-      "lng": 138.4254665672779,
-      "location_label": "小諸市市民交流センター（市立小諸図書館2階） 相生町３丁目３−３ こもろプラザ 小諸市",
-      "geocode_confidence": "source"
-    },
-    {
-      "id": "ss-4006",
-      "title": "市立小諸図書館トークイベント「ペットの適正飼養について考える」",
-      "url": "https://www.slow-style.com/event/4006/",
-      "date": "2026-06-28",
-      "end_date": "2026-06-28",
-      "time": null,
-      "location": "小諸",
-      "description": null,
-      "category": "文化",
-      "tags": [
-        "お店の催し"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "小諸",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3943",
-      "title": "「夏の虫よけ対策ワークショップ」",
-      "url": "https://www.slow-style.com/event/3943/",
-      "date": "2026-06-28",
-      "end_date": "2026-06-28",
-      "time": null,
-      "location": "佐久",
-      "description": null,
-      "category": "文化",
-      "tags": [
-        "お店の催し"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "佐久",
       "lat": 36.3315,
       "lng": 138.4261,
       "location_label": "小諸市中心",
@@ -384,20 +444,20 @@
       "title": "第637回岩村田祇園祭",
       "url": "https://www.slow-style.com/event/3981/",
       "date": "2026-07-18",
-      "end_date": null,
+      "end_date": "2026-07-19",
       "time": null,
-      "location": "岩村田 佐久市",
-      "description": "室町時代の1398年、当時蔓延した伝染病を鎮めるために勧進したと伝わるお祭り、岩村田の夏の風物詩「祇園祭」。熱気を帯びた神輿が熱く、激しく2日間練り歩く！「夏祭り・花火大会特集」はこちらhttps://www.slow-style.com/scontents/natsumatsuri",
+      "location": "佐久平・岩村田",
+      "description": null,
       "category": "祭り",
       "tags": [
         "お祭り"
       ],
       "source": "軽井沢ナビ",
       "area": "佐久平・岩村田",
-      "lat": 36.27108646694456,
-      "lng": 138.47819209337288,
-      "location_label": "岩村田 佐久市",
-      "geocode_confidence": "source"
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
     },
     {
       "id": "ss-3989",
@@ -458,169 +518,9 @@
       "lng": 138.4261,
       "location_label": "小諸市中心",
       "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3814",
-      "title": "旧軽井沢マルシェ2026 夏休み",
-      "url": "https://www.slow-style.com/event/3814/",
-      "date": "2026-08-01",
-      "end_date": "2026-08-31",
-      "time": null,
-      "location": "旧軽井沢",
-      "description": null,
-      "category": "祭り",
-      "tags": [
-        "お祭り"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "旧軽井沢",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3986",
-      "title": "山口佳子＆香月健　デュオ・コンサート（第3回）",
-      "url": "https://www.slow-style.com/event/3986/",
-      "date": "2026-08-01",
-      "end_date": "2026-08-01",
-      "time": null,
-      "location": "軽井沢",
-      "description": null,
-      "category": "コンサート",
-      "tags": [
-        "音楽"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "軽井沢",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-4003",
-      "title": "元劇団四季くっつー先生の親子ミュージカルワークショップ２days",
-      "url": "https://www.slow-style.com/event/4003/",
-      "date": "2026-08-06",
-      "end_date": "2026-08-07",
-      "time": null,
-      "location": "佐久",
-      "description": null,
-      "category": "その他",
-      "tags": [
-        "子供"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "佐久",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3895",
-      "title": "軽井沢発地市庭クラフトフェア2026",
-      "url": "https://www.slow-style.com/event/3895/",
-      "date": "2026-08-08",
-      "end_date": "2026-08-09",
-      "time": null,
-      "location": "旧軽井沢",
-      "description": null,
-      "category": "祭り",
-      "tags": [
-        "お祭り"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "旧軽井沢",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3987",
-      "title": "イタリア愛の歌〜情熱のカンツォーネ〜",
-      "url": "https://www.slow-style.com/event/3987/",
-      "date": "2026-08-11",
-      "end_date": "2026-08-11",
-      "time": null,
-      "location": "軽井沢",
-      "description": null,
-      "category": "コンサート",
-      "tags": [
-        "音楽"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "軽井沢",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3961",
-      "title": "第63回 佐久千曲川大花火大会",
-      "url": "https://www.slow-style.com/event/3961/",
-      "date": "2026-08-15",
-      "end_date": "2026-08-15",
-      "time": null,
-      "location": "佐久平・岩村田",
-      "description": null,
-      "category": "祭り",
-      "tags": [
-        "お祭り"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "佐久平・岩村田",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3983",
-      "title": "ダイヤモンド浅間を見に行こう！～日の出編～",
-      "url": "https://www.slow-style.com/event/3983/",
-      "date": "2026-08-29",
-      "end_date": "2026-08-29",
-      "time": null,
-      "location": "小諸",
-      "description": null,
-      "category": "その他",
-      "tags": [
-        "健康"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "小諸",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
-    },
-    {
-      "id": "ss-3988",
-      "title": "立川志の八落語会「しのはちの巣特別編in信濃追分」Vol.13",
-      "url": "https://www.slow-style.com/event/3988/",
-      "date": "2026-08-29",
-      "end_date": "2026-08-30",
-      "time": null,
-      "location": "軽井沢",
-      "description": null,
-      "category": "その他",
-      "tags": [
-        "その他"
-      ],
-      "source": "軽井沢ナビ",
-      "area": "軽井沢",
-      "lat": 36.3315,
-      "lng": 138.4261,
-      "location_label": "小諸市中心",
-      "geocode_confidence": "fallback"
     }
   ],
-  "updated_at": "2026-06-28T14:18:24Z",
-  "total": 31,
+  "updated_at": "2026-06-28T18:22:18Z",
+  "total": 26,
   "disclaimer": "非公式APIです。最新情報は公式サイト（https://www.komoro-tour.jp）で確認してください。"
 }
