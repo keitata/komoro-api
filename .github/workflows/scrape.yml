@@ -2,7 +2,7 @@ name: 毎日イベント自動取得
 
 on:
   schedule:
-    - cron: '0 16 * * *'
+    - cron: '0 18 * * *'  # 毎日 03:00 JST（UTC 18:00）
   workflow_dispatch:
 
 permissions:
@@ -13,13 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ランダム待機（自動実行時のみ）
-        if: github.event_name == 'schedule'
-        run: |
-          SLEEP_SEC=$(( RANDOM % 5400 ))
-          echo "待機時間: ${SLEEP_SEC}秒"
-          sleep $SLEEP_SEC
-
       - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
 

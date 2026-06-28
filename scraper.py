@@ -16,6 +16,8 @@ import requests
 from bs4 import BeautifulSoup
 from dateutil import parser as dateparser
 
+from geocode import enrich_event
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -273,10 +275,18 @@ def save_events(events: list[dict]) -> None:
 
     added = 0
     for event in events:
-        if event["id"] not in existing:
-            existing[event["id"]] = event
+        enriched = enrich_event(event)
+        if enriched["id"] not in existing:
+            existing[enriched["id"]] = enriched
             added += 1
-            logger.info(f"  新規追加: {event['title']}")
+            logger.info(f"  新規追加: {enriched['title']}")
+        else:
+            # 座標など不足フィールドを補完
+            prev = existing[enriched["id"]]
+            for key in ("lat", "lng", "location_label", "geocode_confidence", "location", "time", "description"):
+                if not prev.get(key) and enriched.get(key):
+                    prev[key] = enriched[key]
+            existing[enriched["id"]] = prev
 
     if added == 0:
         logger.info("新規イベントなし・更新スキップ")

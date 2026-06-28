@@ -12,6 +12,8 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
+from geocode import enrich_event
+
 # ── パス設定 ──────────────────────────────────────────────
 BASE_DIR   = Path(__file__).parent.parent
 EVENTS_FILE = Path(__file__).parent / "data" / "events.json"
@@ -245,21 +247,23 @@ def get_events(
     if category:
         events = [e for e in events if e.get("category") == category]
     total = len(events)
+    enriched = [enrich_event(e) for e in events[offset:offset + limit]]
     return success_response(
-        {"events": events[offset:offset + limit], "total": total, "limit": limit, "offset": offset},
+        {"events": enriched, "total": total, "limit": limit, "offset": offset},
         updated_at=store.get("updated_at"),
     )
 
 
 @app.get("/api/events/upcoming", tags=["events"])
 def get_upcoming_events(
-    days: int = Query(7, ge=1, le=30, description="今日から何日以内か"),
+    days: int = Query(7, ge=1, le=120, description="今日から何日以内か"),
 ):
     """直近N日以内のイベントを返します。"""
     store = load_events()
     events = filter_upcoming(store.get("events", []), days=days)
+    enriched = [enrich_event(e) for e in events]
     return success_response(
-        {"events": events, "total": len(events), "days": days},
+        {"events": enriched, "total": len(enriched), "days": days},
         updated_at=store.get("updated_at"),
     )
 
@@ -270,7 +274,7 @@ def get_event_detail(event_id: str):
     store = load_events()
     for event in store.get("events", []):
         if event.get("id") == event_id:
-            return success_response({"event": event}, updated_at=store.get("updated_at"))
+            return success_response({"event": enrich_event(event)}, updated_at=store.get("updated_at"))
     raise HTTPException(status_code=404, detail=f"イベントが見つかりません: {event_id}")
 
 
