@@ -25,7 +25,7 @@ jobs:
         run: pip install requests beautifulsoup4 python-dateutil
 
       - name: スクレイピング実行
-        run: python scraper.py
+        run: python -m scraping.scraper
 
       - name: events.json に変更があればコミット＆プッシュ
         run: |

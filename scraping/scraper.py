@@ -1,6 +1,7 @@
 """
-こもろ観光局イベントスクレイパー
-対象: https://www.komoro-tour.jp/blog/category/event/
+イベントスクレイパー
+- こもろ観光局: https://www.komoro-tour.jp/blog/category/event/
+- 軽井沢ナビ:   https://www.slow-style.com/event/ （小諸エリア）
 """
 
 import re
@@ -17,13 +18,15 @@ from bs4 import BeautifulSoup
 from dateutil import parser as dateparser
 
 from geocode import enrich_event
+from events_util import filter_active_events, is_active_event
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = "https://www.komoro-tour.jp"
 EVENT_LIST_URL = f"{BASE_URL}/blog/category/event/"
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = ROOT_DIR / "data"
 EVENTS_FILE = DATA_DIR / "events.json"
 
 # ──────────────────────────────────────────────────────────────
@@ -274,29 +277,41 @@ def save_events(events: list[dict]) -> None:
             existing = {e["id"]: e for e in data.get("events", [])}
 
     added = 0
+    updated = 0
     for event in events:
         enriched = enrich_event(event)
-        if enriched["id"] not in existing:
-            existing[enriched["id"]] = enriched
+        if not is_active_event(enriched):
+            continue
+        eid = enriched["id"]
+        if eid not in existing:
+            existing[eid] = enriched
             added += 1
             logger.info(f"  新規追加: {enriched['title']}")
-        else:
-            # 座標など不足フィールドを補完
-            prev = existing[enriched["id"]]
-            for key in ("lat", "lng", "location_label", "geocode_confidence", "location", "time", "description"):
-                if not prev.get(key) and enriched.get(key):
-                    prev[key] = enriched[key]
-            existing[enriched["id"]] = prev
+            continue
 
-    if added == 0:
-        logger.info("新規イベントなし・更新スキップ")
-        return
+        prev = existing[eid]
+        # 軽井沢ナビ由来は毎回上書き更新
+        if enriched.get("source") == "軽井沢ナビ":
+            existing[eid] = enriched
+            updated += 1
+            logger.info(f"  更新: {enriched['title']}")
+            continue
 
-    # 日付順にソート（日付なしは末尾）
+        for key in ("lat", "lng", "location_label", "geocode_confidence", "location", "time", "description"):
+            if not prev.get(key) and enriched.get(key):
+                prev[key] = enriched[key]
+        existing[eid] = prev
+
+    before_count = len(existing)
     sorted_events = sorted(
-        existing.values(),
+        filter_active_events(list(existing.values())),
         key=lambda e: e.get("date") or "9999-99-99",
     )
+    removed = before_count - len(sorted_events)
+
+    if added == 0 and updated == 0 and removed == 0:
+        logger.info("新規イベントなし・更新スキップ")
+        return
 
     output = {
         "events": sorted_events,
@@ -308,7 +323,9 @@ def save_events(events: list[dict]) -> None:
     with open(EVENTS_FILE, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    logger.info(f"保存完了: {EVENTS_FILE} ({len(sorted_events)} 件)")
+    logger.info(
+        f"保存完了: {EVENTS_FILE} ({len(sorted_events)} 件, +{added} / ~{updated} / -{removed})"
+    )
 
 
 def run_scrape(fetch_detail: bool = False) -> None:
@@ -325,10 +342,13 @@ def run_scrape(fetch_detail: bool = False) -> None:
                     if not event.get(key) and detail.get(key):
                         event[key] = detail[key]
 
-    if events:
-        save_events(events)
-    else:
-        logger.warning("イベントが取得できませんでした")
+    from .scraper_slow_style import fetch_slow_style_events
+
+    logger.info("軽井沢ナビ（Slow-Style）から小諸イベントを取得中...")
+    slow_style_events = fetch_slow_style_events()
+    events.extend(slow_style_events)
+
+    save_events(events)
 
 
 if __name__ == "__main__":

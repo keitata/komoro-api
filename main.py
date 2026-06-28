@@ -12,7 +12,8 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from geocode import enrich_event
+from geocode import enrich_event  # 呼び出し: イベント系 GET の返却直前（lat/lng 付与）
+from events_util import filter_active_events, is_active_event
 
 # ── パス設定 ──────────────────────────────────────────────
 BASE_DIR   = Path(__file__).parent.parent
@@ -51,16 +52,25 @@ app.add_middleware(
 # ── ユーティリティ ────────────────────────────────────────
 
 def load_json(path: Path) -> dict:
+    """JSON ファイルを読み込む。存在しなければ空 dict。
+    呼び出し: load_events、GET /api/spots 等（各種静的データ読み込み）"""
     if not path.exists():
         return {}
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def load_events() -> dict:
+    """data/events.json（スクレイパーが更新）を読み込む。終了済みは除外。
+    呼び出し: イベント系 API・GET /・GET /api/health"""
     data = load_json(EVENTS_FILE)
-    return data if data else {"events": [], "updated_at": None, "total": 0}
+    if not data:
+        return {"events": [], "updated_at": None, "total": 0}
+    active = filter_active_events(data.get("events", []))
+    return {**data, "events": active, "total": len(active)}
 
 def success_response(data: dict, updated_at: Optional[str] = None) -> dict:
+    """API レスポンスの共通ラッパー（success / data / disclaimer）。
+    呼び出し: すべての GET エンドポイントの返却直前"""
     return {
         "success": True,
         "data": data,
@@ -69,13 +79,19 @@ def success_response(data: dict, updated_at: Optional[str] = None) -> dict:
     }
 
 def filter_by_month(events: list[dict], month: str) -> list[dict]:
+    """date が YYYY-MM で始まるイベントだけ残す。
+    呼び出し: GET /api/events（month クエリ指定時）"""
     return [e for e in events if (e.get("date") or "").startswith(month)]
 
 def filter_upcoming(events: list[dict], days: int = 7) -> list[dict]:
+    """今日から days 日以内に開始する、かつ未終了のイベントだけ残す。
+    呼び出し: GET /api/events/upcoming"""
     today = date.today()
     limit = today + timedelta(days=days)
     result = []
     for e in events:
+        if not is_active_event(e, today):
+            continue
         d_str = e.get("date")
         if not d_str:
             continue
@@ -92,6 +108,8 @@ def filter_upcoming(events: list[dict], days: int = 7) -> list[dict]:
 
 @app.get("/", response_class=HTMLResponse, tags=["root"])
 def root():
+    """API トップページ（HTML）。エンドポイント一覧と統計を表示。
+    呼び出し: ブラウザで GET /"""
     store = load_events()
     events_count = store.get("total", len(store.get("events", [])))
     last_updated = store.get("updated_at") or "未取得"
@@ -239,7 +257,8 @@ def get_events(
     limit: int = Query(50, ge=1, le=200, description="最大取得件数"),
     offset: int = Query(0, ge=0, description="オフセット"),
 ):
-    """イベント一覧を取得します。"""
+    """イベント一覧。座標は enrich_event で付与。
+    呼び出し: GET /api/events（フロント komoroClient・管理画面の小諸APIタブ）"""
     store = load_events()
     events = store.get("events", [])
     if month:
@@ -258,7 +277,8 @@ def get_events(
 def get_upcoming_events(
     days: int = Query(7, ge=1, le=120, description="今日から何日以内か"),
 ):
-    """直近N日以内のイベントを返します。"""
+    """直近 N 日以内のイベント一覧。
+    呼び出し: GET /api/events/upcoming"""
     store = load_events()
     events = filter_upcoming(store.get("events", []), days=days)
     enriched = [enrich_event(e) for e in events]
@@ -270,17 +290,24 @@ def get_upcoming_events(
 
 @app.get("/api/events/{event_id}", tags=["events"])
 def get_event_detail(event_id: str):
-    """個別イベントの詳細を返します。"""
+    """イベント1件の詳細。
+    呼び出し: GET /api/events/{event_id}"""
     store = load_events()
     for event in store.get("events", []):
         if event.get("id") == event_id:
             return success_response({"event": enrich_event(event)}, updated_at=store.get("updated_at"))
+    # 終了済みまたは存在しない
+    raw = load_json(EVENTS_FILE)
+    for event in raw.get("events", []):
+        if event.get("id") == event_id and not is_active_event(event):
+            raise HTTPException(status_code=404, detail=f"イベントは終了しました: {event_id}")
     raise HTTPException(status_code=404, detail=f"イベントが見つかりません: {event_id}")
 
 
 @app.get("/api/categories", tags=["events"])
 def get_categories():
-    """カテゴリ一覧と件数を返します。"""
+    """カテゴリ名と件数の一覧。
+    呼び出し: GET /api/categories"""
     store = load_events()
     counts: dict[str, int] = {}
     for e in store.get("events", []):
@@ -298,7 +325,8 @@ def get_categories():
 def get_spots(
     category: Optional[str] = Query(None, description="カテゴリ（例: 温泉）"),
 ):
-    """観光スポット一覧を返します。"""
+    """観光スポット一覧（spots_test.json）。
+    呼び出し: GET /api/spots"""
     store = load_json(SPOTS_FILE)
     spots = store.get("spots", [])
     if category:
@@ -312,7 +340,8 @@ def get_spots(
 def get_restaurants(
     category: Optional[str] = Query(None, description="カテゴリ（例: そば）"),
 ):
-    """飲食店一覧を返します。"""
+    """飲食店一覧（restaurants_test.json）。
+    呼び出し: GET /api/restaurants"""
     store = load_json(RESTAURANTS_FILE)
     restaurants = store.get("restaurants", [])
     if category:
@@ -326,7 +355,8 @@ def get_restaurants(
 def get_garbage(
     area: Optional[str] = Query(None, description="地区名（例: 大手地区）"),
 ):
-    """ゴミ収集日を地区ごとに返します。"""
+    """ゴミ収集日（garbage_test.json）。area 未指定なら全地区。
+    呼び出し: GET /api/garbage"""
     store = load_json(GARBAGE_FILE)
     areas = store.get("areas", [])
     if area:
@@ -342,7 +372,8 @@ def get_garbage(
 def get_childcare(
     category: Optional[str] = Query(None, description="カテゴリ（例: 保育園）"),
 ):
-    """子育て施設一覧を返します。"""
+    """子育て施設一覧（childcare_test.json）。
+    呼び出し: GET /api/childcare"""
     store = load_json(CHILDCARE_FILE)
     facilities = store.get("facilities", [])
     if category:
@@ -354,7 +385,8 @@ def get_childcare(
 
 @app.get("/api/health", tags=["meta"])
 def health():
-    """ヘルスチェック"""
+    """稼働確認・events.json の件数と更新日時。
+    呼び出し: GET /api/health"""
     store = load_events()
     return {
         "status": "ok",
@@ -366,7 +398,8 @@ def health():
 
 @app.get("/api/terms", tags=["meta"])
 def get_terms():
-    """利用規約・免責事項"""
+    """利用規約・免責事項（JSON）。
+    呼び出し: GET /api/terms"""
     return {
         "title": "小諸市 非公式統合API 利用規約・免責事項",
         "last_updated": "2026-06-27",
