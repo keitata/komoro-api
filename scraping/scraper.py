@@ -297,7 +297,11 @@ def save_events(events: list[dict]) -> None:
             logger.info(f"  更新: {enriched['title']}")
             continue
 
-        for key in ("lat", "lng", "location_label", "geocode_confidence", "location", "time", "description"):
+        # 座標は source 以外は毎回 enrich 結果で上書き（旧 fallback を残さない）
+        if enriched.get("geocode_confidence") != "source":
+            for key in ("lat", "lng", "location_label", "geocode_confidence"):
+                prev[key] = enriched.get(key)
+        for key in ("location", "time", "description"):
             if not prev.get(key) and enriched.get(key):
                 prev[key] = enriched[key]
         existing[eid] = prev
@@ -305,7 +309,9 @@ def save_events(events: list[dict]) -> None:
     before_count = len(existing)
     sorted_events = sorted(
         filter_listable_events(
-            filter_active_events(list(existing.values()))
+            filter_active_events(
+                [enrich_event(e) for e in existing.values()]
+            )
         ),
         key=lambda e: e.get("date") or "9999-99-99",
     )

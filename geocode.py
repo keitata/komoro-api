@@ -1,7 +1,7 @@
 """
-小諸市内のイベント開催場所テキストから緯度経度を推定する。
-観光スポットデータと既知の地名キーワードを優先マッチし、
-見つからない場合は小諸市中心付近を返す。
+イベント開催場所テキストから緯度経度を推定する。
+観光スポットデータと既知の地名キーワードを優先マッチする。
+マッチしない場合は座標を付けない（小諸中心などの仮座標は使わない）。
 """
 
 from __future__ import annotations
@@ -13,13 +13,20 @@ from typing import Optional
 DATA_DIR = Path(__file__).parent / "data"
 SPOTS_FILE = DATA_DIR / "spots_test.json"
 
-# 小諸駅前・市中心
-DEFAULT_LAT = 36.3315
-DEFAULT_LNG = 138.4261
-DEFAULT_LABEL = "小諸市中心"
-
 # スポットデータにないがイベントでよく出る地名
 EXTRA_LOCATIONS: list[tuple[list[str], float, float, str]] = [
+    (["佐久平・岩村田", "岩村田"], 36.2711, 138.4782, "佐久平・岩村田"),
+    (["北軽井沢"], 36.4560, 138.6550, "北軽井沢"),
+    (["旧軽井沢"], 36.3550, 138.6330, "旧軽井沢"),
+    (["新軽井沢", "南軽井沢"], 36.3480, 138.5980, "新軽井沢"),
+    (["中軽井沢"], 36.3840, 138.5680, "中軽井沢"),
+    (["軽井沢"], 36.3428, 138.6350, "軽井沢"),
+    (["中込・野沢", "中込", "野沢"], 36.2660, 138.5180, "中込・野沢"),
+    (["御代田"], 36.4120, 138.5020, "御代田"),
+    (["佐久"], 36.2480, 138.4760, "佐久市"),
+    (["追分"], 36.4560, 138.6010, "追分"),
+    (["東御"], 36.3550, 138.4950, "東御市"),
+    (["小諸市内", "小諸"], 36.3315, 138.4261, "小諸市"),
     (["小諸駅", "駅前", "大手門", "せせらぎ", "まちタネ", "まちたね", "停車場"], 36.3315, 138.4261, "小諸駅前"),
     (["健速神社"], 36.3292, 138.4285, "健速神社"),
     (["みはらし"], 36.3420, 138.4180, "みはらし交流館"),
@@ -28,6 +35,8 @@ EXTRA_LOCATIONS: list[tuple[list[str], float, float, str]] = [
     (["美術館", "高原美術館"], 36.3400, 138.4120, "小諸高原美術館"),
     (["市役所", "公民館"], 36.3270, 138.4230, "小諸市役所付近"),
 ]
+
+UNRELIABLE_CONFIDENCE = frozenset({"fallback", "default", "unresolved"})
 
 
 def _load_spot_keywords() -> list[tuple[list[str], float, float, str]]:
@@ -59,25 +68,56 @@ def _keyword_entries() -> list[tuple[list[str], float, float, str]]:
     return sorted(entries, key=lambda e: -max(len(k) for k in e[0]))
 
 
-def geocode_location(location: Optional[str]) -> dict:
-    """開催場所文字列から lat/lng を推定する。"""
-    text = (location or "").strip()
-    if not text or text == "小諸市内":
-        return {
-            "lat": DEFAULT_LAT,
-            "lng": DEFAULT_LNG,
-            "location_label": DEFAULT_LABEL,
-            "geocode_confidence": "default",
-        }
+def _location_candidates(text: str) -> list[str]:
+    """全文と空白区切りの各部分を、長い順に試す。"""
+    seen: set[str] = set()
+    parts: list[str] = []
+    for part in [text, *text.split()]:
+        part = part.strip()
+        if part and part not in seen:
+            seen.add(part)
+            parts.append(part)
+    return sorted(parts, key=len, reverse=True)
 
+
+def _match_location_text(text: str) -> Optional[tuple[float, float, str, int]]:
     best: Optional[tuple[float, float, str, int]] = None
     for keywords, lat, lng, label in _keyword_entries():
         for kw in keywords:
-            if len(kw) < 3:
+            if not kw:
                 continue
-            if kw in text:
-                if best is None or len(kw) > best[3]:
-                    best = (lat, lng, label, len(kw))
+            if text == kw:
+                score = len(kw) + 1000
+            elif len(kw) >= 3 and kw in text:
+                score = len(kw)
+            else:
+                continue
+            if best is None or score > best[3]:
+                best = (lat, lng, label, score)
+    return best
+
+
+def _unresolved(location_text: str) -> dict:
+    label = location_text.strip() or None
+    return {
+        "lat": None,
+        "lng": None,
+        "location_label": label,
+        "geocode_confidence": "unresolved",
+    }
+
+
+def geocode_location(location: Optional[str]) -> dict:
+    """開催場所文字列から lat/lng を推定する。特定できなければ座標なし。"""
+    text = (location or "").strip()
+    if not text:
+        return _unresolved("")
+
+    best: Optional[tuple[float, float, str, int]] = None
+    for candidate in _location_candidates(text):
+        match = _match_location_text(candidate)
+        if match and (best is None or match[3] > best[3]):
+            best = match
 
     if best:
         lat, lng, label, _ = best
@@ -88,21 +128,55 @@ def geocode_location(location: Optional[str]) -> dict:
             "geocode_confidence": "matched",
         }
 
-    return {
-        "lat": DEFAULT_LAT,
-        "lng": DEFAULT_LNG,
-        "location_label": DEFAULT_LABEL,
-        "geocode_confidence": "fallback",
-    }
+    return _unresolved(text)
+
+
+def _location_text(event: dict) -> str:
+    """ジオコード入力。location_label は出力なので含めない。"""
+    parts = [
+        event.get("location") or "",
+        event.get("area") or "",
+    ]
+    return " ".join(p for p in parts if p).strip()
+
+
+def has_map_coordinates(event: dict) -> bool:
+    """地図表示に使える座標があるか。"""
+    lat, lng = event.get("lat"), event.get("lng")
+    if lat is None or lng is None:
+        return False
+    conf = event.get("geocode_confidence")
+    if conf in UNRELIABLE_CONFIDENCE:
+        return False
+    return True
+
+
+def clear_unreliable_coordinates(event: dict) -> dict:
+    """旧 fallback/default 座標を除去してから再ジオコードする。"""
+    cleaned = dict(event)
+    conf = cleaned.get("geocode_confidence")
+    if conf in UNRELIABLE_CONFIDENCE:
+        cleaned["lat"] = None
+        cleaned["lng"] = None
+        cleaned.pop("location_label", None)
+    return cleaned
+
+
+def _needs_regeocode(event: dict) -> bool:
+    conf = event.get("geocode_confidence")
+    if conf == "source":
+        return False
+    if conf == "matched":
+        return False
+    return True
 
 
 def enrich_event(event: dict) -> dict:
-    """イベント dict に座標フィールドを付与する（既存 lat/lng があれば尊重）。"""
-    enriched = dict(event)
-    if enriched.get("lat") is not None and enriched.get("lng") is not None:
-        enriched.setdefault("geocode_confidence", "stored")
-        enriched.setdefault("location_label", enriched.get("location", DEFAULT_LABEL))
+    """イベント dict に座標フィールドを付与する。"""
+    enriched = clear_unreliable_coordinates(event)
+    if not _needs_regeocode(enriched):
+        enriched.setdefault("location_label", enriched.get("location") or "")
         return enriched
-    geo = geocode_location(enriched.get("location"))
+    geo = geocode_location(_location_text(enriched))
     enriched.update(geo)
     return enriched

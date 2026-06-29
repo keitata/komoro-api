@@ -60,12 +60,13 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 def load_events() -> dict:
-    """data/events.json を読み込む。終了済み・古い長期開催は除外。"""
+    """data/events.json を読み込む。終了済み除外し、座標を enrich で正規化。"""
     data = load_json(EVENTS_FILE)
     if not data:
         return {"events": [], "updated_at": None, "total": 0}
     listed = filter_listable_events(data.get("events", []))
-    return {**data, "events": listed, "total": len(listed)}
+    normalized = [enrich_event(e) for e in listed]
+    return {**data, "events": normalized, "total": len(normalized)}
 
 def success_response(data: dict, updated_at: Optional[str] = None) -> dict:
     """API レスポンスの共通ラッパー（success / data / disclaimer）。
