@@ -1,6 +1,166 @@
 {
   "events": [
     {
+      "id": "ss-3808",
+      "title": "生誕140周年 藤田嗣治展 -Foujita: The 140th Anniversary Exhibition-",
+      "url": "https://www.slow-style.com/event/3808/",
+      "date": "2026-01-09",
+      "end_date": "2026-07-05",
+      "time": null,
+      "location": "旧軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "旧軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3865",
+      "title": "【甲冑着付け体験】小諸城で戦国武将気分！",
+      "url": "https://www.slow-style.com/event/3865/",
+      "date": "2026-03-01",
+      "end_date": "2026-10-31",
+      "time": null,
+      "location": "小諸",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "小諸",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3851",
+      "title": "ドイツのいろいろ人形",
+      "url": "https://www.slow-style.com/event/3851/",
+      "date": "2026-03-14",
+      "end_date": "2026-10-05",
+      "time": null,
+      "location": "旧軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "旧軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3877",
+      "title": "【堀辰雄文学記念館】春期企画展「『堀辰雄詩集』と人々」",
+      "url": "https://www.slow-style.com/event/3877/",
+      "date": "2026-03-19",
+      "end_date": "2026-07-07",
+      "time": null,
+      "location": "旧軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "旧軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3914",
+      "title": "こやまけいぞうのどうぶつ画",
+      "url": "https://www.slow-style.com/event/3914/",
+      "date": "2026-04-11",
+      "end_date": "2026-10-11",
+      "time": null,
+      "location": "小諸",
+      "description": null,
+      "category": "その他",
+      "tags": [
+        "ペット"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "小諸",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3928",
+      "title": "2026 Morning Outdoor Yoga",
+      "url": "https://www.slow-style.com/event/3928/",
+      "date": "2026-04-26",
+      "end_date": "2026-10-04",
+      "time": null,
+      "location": "軽井沢",
+      "description": null,
+      "category": "スポーツ",
+      "tags": [
+        "スポーツ"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3970",
+      "title": "「アサマスタークロスウォーク2026」参加者募集!【申込7/12まで】",
+      "url": "https://www.slow-style.com/event/3970/",
+      "date": "2026-05-01",
+      "end_date": "2026-07-12",
+      "time": null,
+      "location": "小諸",
+      "description": null,
+      "category": "スポーツ",
+      "tags": [
+        "スポーツ"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "小諸",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
+      "id": "ss-3954",
+      "title": "プレミアムBBQ講座",
+      "url": "https://www.slow-style.com/event/3954/",
+      "date": "2026-05-05",
+      "end_date": "2026-10-31",
+      "time": null,
+      "location": "新軽井沢・南軽井沢",
+      "description": null,
+      "category": "文化",
+      "tags": [
+        "お店の催し"
+      ],
+      "source": "軽井沢ナビ",
+      "area": "新軽井沢・南軽井沢",
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    },
+    {
       "id": "ss-3978",
       "title": "【さくまんが舎】武論尊　史村翔・池上遼一ミニ展",
       "url": "https://www.slow-style.com/event/3978/",
@@ -75,10 +235,17 @@
       ],
       "source": "軽井沢ナビ",
       "area": "佐久平・岩村田",
+<<<<<<< HEAD
       "lat": 36.2711,
       "lng": 138.4782,
       "geocode_confidence": "matched",
       "location_label": "佐久平・岩村田"
+=======
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+>>>>>>> 280798baf705d52c4e10b6e53e0ca945c5e2f396
     },
     {
       "id": "ss-3985",
@@ -284,20 +451,20 @@
       "title": "第637回岩村田祇園祭",
       "url": "https://www.slow-style.com/event/3981/",
       "date": "2026-07-18",
-      "end_date": null,
+      "end_date": "2026-07-19",
       "time": null,
-      "location": "岩村田 佐久市",
-      "description": "室町時代の1398年、当時蔓延した伝染病を鎮めるために勧進したと伝わるお祭り、岩村田の夏の風物詩「祇園祭」。熱気を帯びた神輿が熱く、激しく2日間練り歩く！「夏祭り・花火大会特集」はこちらhttps://www.slow-style.com/scontents/natsumatsuri",
+      "location": "佐久平・岩村田",
+      "description": null,
       "category": "祭り",
       "tags": [
         "お祭り"
       ],
       "source": "軽井沢ナビ",
       "area": "佐久平・岩村田",
-      "lat": 36.27108646694456,
-      "lng": 138.47819209337288,
-      "location_label": "岩村田 佐久市",
-      "geocode_confidence": "source"
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
     },
     {
       "id": "ss-3989",
@@ -354,6 +521,7 @@
       ],
       "source": "軽井沢ナビ",
       "area": "追分",
+<<<<<<< HEAD
       "lat": 36.456,
       "lng": 138.601,
       "geocode_confidence": "matched",
@@ -362,5 +530,15 @@
   ],
   "updated_at": "2026-06-29T01:25:09Z",
   "total": 18,
+=======
+      "lat": 36.3315,
+      "lng": 138.4261,
+      "location_label": "小諸市中心",
+      "geocode_confidence": "fallback"
+    }
+  ],
+  "updated_at": "2026-06-28T18:22:18Z",
+  "total": 26,
+>>>>>>> 280798baf705d52c4e10b6e53e0ca945c5e2f396
   "disclaimer": "非公式APIです。最新情報は公式サイト（https://www.komoro-tour.jp）で確認してください。"
 }
